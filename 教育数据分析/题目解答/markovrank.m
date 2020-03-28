@@ -1,0 +1,66 @@
+%运用马尔可夫方法对部分高校综合实力及各项实力进行排名，将所得结果整合至中国部分高校马尔可夫综合排名.xslx中
+clear;clc;
+[num,txt]=xlsread('中国部分高校各项指标数据表.xlsx');
+ranklist=cell(31,6);
+num(:,3)=1./num(:,3);
+%求出每项数据对应的转移概率矩阵
+Trat=transmatrix(num(:,3));
+Tdom=transmatrix(num(:,4));
+Tabr=transmatrix(num(:,5));
+Tqua=transmatrix(num(:,6));
+Tfund=transmatrix(num(:,7));
+Tquo=transmatrix(num(:,8));
+TAAA=transmatrix(num(:,11),0.9);
+TAA=transmatrix(num(:,12),0.9);
+TA=transmatrix(num(:,13),0.9);
+%转移概率矩阵加权平均
+Tedu=(Trat+Tdom+Tabr)/3;
+Tresearch=(Tfund+Tquo)/2;
+Tdiscipline=(TAAA*4+TAA*2+TA*1)/7;
+Tsum=(Tqua+Tedu+Tresearch+Tdiscipline)/4;
+%求出转移概率矩阵对应的不变分布
+vqua=stationaryvector(Tqua);
+vedu=stationaryvector(Tedu);
+vresearch=stationaryvector(Tresearch);
+vdiscipline=stationaryvector(Tdiscipline);
+vsum=stationaryvector(Tsum);
+%根据求得不变分布进行排名
+[quaprob,quarank]=sort(vqua,'descend');
+[eduprob,edurank]=sort(vedu,'descend');
+[researchprob,researchrank]=sort(vresearch,'descend');
+[disciplineprob,disciplinerank]=sort(vdiscipline,'descend');
+[sumprob,sumrank]=sort(vsum,'descend');
+%将不变分布转化为得分（第一名得分为100）
+quapoint=quaprob/quaprob(1)*100;
+edupoint=eduprob/eduprob(1)*100;
+researchpoint=researchprob/researchprob(1)*100;
+disciplinepoint=disciplineprob/disciplineprob(1)*100;
+sumpoint=sumprob/sumprob(1)*100;
+%将以上所得排名与得分数据整合至ranlist元胞数组
+ranklist{1,1}='学校名称';
+ranklist{1,2}='综合排名';
+ranklist{1,3}='综合得分';
+ranklist{1,4}='生源质量排名';
+ranklist{1,5}='生源质量得分';
+ranklist{1,6}='教学实力排名';
+ranklist{1,7}='教学实力得分';
+ranklist{1,8}='科研实力排名';
+ranklist{1,9}='科研实力得分';
+ranklist{1,10}='学科实力排名';
+ranklist{1,11}='学科实力得分';
+for i=1:30
+    ranklist{i+1,1}=txt{sumrank(i)+1,2};
+    ranklist{i+1,2}=i;
+    ranklist{i+1,3}=sumpoint(i);
+    ranklist{i+1,4}=find(quarank==sumrank(i));
+    ranklist{i+1,5}=sumpoint(find(quarank==sumrank(i)));
+    ranklist{i+1,6}=find(edurank==sumrank(i));
+    ranklist{i+1,7}=sumpoint(find(edurank==sumrank(i)));
+    ranklist{i+1,8}=find(researchrank==sumrank(i));
+    ranklist{i+1,9}=sumpoint(find(researchrank==sumrank(i)));
+    ranklist{i+1,10}=find(disciplinerank==sumrank(i));
+    ranklist{i+1,11}=sumpoint(find(disciplinerank==sumrank(i)));
+end
+%将ranklist元胞数组写入中国部分高校马尔可夫综合排名.xlsx
+writecell(ranklist,'中国部分高校马尔可夫综合排名.xlsx');
+    
