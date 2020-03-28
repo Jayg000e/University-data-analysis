@@ -1,5 +1,5 @@
 # Univesity-data-analysis
-#各matlab m文件作用
+# 各matlab m文件作用
 universitydata.m 
 将部分指标、高被引学者、学科评估结果（A）、学校基本信息中的数据整合至中国部分高校各项数据表.xlsx中
 markovrank.m
